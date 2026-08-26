@@ -40,4 +40,6 @@ func main() {
 
 	fmt.Println("PACKET : ", packet)
 
+	internals.SockConn(targetIP, packet)
+
 }
