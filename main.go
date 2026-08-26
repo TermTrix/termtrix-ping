@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 
 	"github.com/termtrix-ping/internals"
 )
@@ -30,6 +31,13 @@ func main() {
 	}
 
 	fmt.Println("TARGET IP :", targetIP, *message)
+
+	osType := runtime.GOOS
+
+	if osType != "linux" {
+		fmt.Println("Please continue with linux distro....")
+		return
+	}
 
 	input := internals.UserInputs{
 		TargetIP: targetIP,
