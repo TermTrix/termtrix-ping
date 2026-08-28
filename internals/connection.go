@@ -7,7 +7,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func SockConn(target net.IP, packet []byte) {
+func SockConn(target net.IP, packet []byte) []byte {
 
 	fd, err := unix.Socket(
 		unix.AF_INET,
@@ -17,19 +17,20 @@ func SockConn(target net.IP, packet []byte) {
 
 	if err != nil {
 		fmt.Println("Failed to connect socket conn")
-		return
+		return nil
 	}
 
 	addr := unix.SockaddrInet4{
-		Addr: [4]byte(target),
+		Port: 0,
 	}
+
+	copy(addr.Addr[:], target)
 
 	unix.Sendto(fd, packet, 0, &addr)
 
-	buff := make([]byte, 1024)
+	buff := make([]byte, 2048)
 
 	unix.Recvfrom(fd, buff, 0)
 
-	fmt.Println(buff)
-
+	return buff
 }

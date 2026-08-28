@@ -10,6 +10,20 @@ type UserInputs struct {
 	Message  string
 }
 
+type ICMP struct {
+	Version       int
+	Ihl           int
+	TotalBytes    int
+	SourceIP      net.IP
+	DestinationIP net.IP
+
+	ReplyType  int
+	ReplyCode  int
+	Identifier int
+	Sequence   int
+	Message    string
+}
+
 func BuildPacket(i UserInputs) []byte {
 	packet := make([]byte, 8+len(i.Message))
 

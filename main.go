@@ -19,7 +19,7 @@ func main() {
 	target := flag.String("t", "", "Enter your target :)")
 	message := flag.String("m", "", "Your message!!")
 	flag.Parse()
-	targetIP := net.ParseIP(*target)
+	targetIP := net.ParseIP(*target).To4()
 
 	if targetIP == nil {
 		fmt.Println("Target is not a valid one....")
@@ -29,8 +29,6 @@ func main() {
 	if len(*message) < 1 {
 		*message = "TERMTRIX"
 	}
-
-	fmt.Println("TARGET IP :", targetIP, *message)
 
 	osType := runtime.GOOS
 
@@ -46,8 +44,20 @@ func main() {
 
 	packet := internals.BuildPacket(input)
 
-	fmt.Println("PACKET : ", packet)
+	buff := internals.SockConn(targetIP, packet)
 
-	internals.SockConn(targetIP, packet)
+	VERSION, IHL, TOTAL_BYTES := internals.Find_version_ihl(buff)
+	icmp := internals.ICMP{
+		Version:       VERSION,
+		Ihl:           IHL,
+		TotalBytes:    TOTAL_BYTES,
+		SourceIP:      net.IP(buff[12:16]),
+		DestinationIP: net.IP(buff[16:20]),
+	}
 
+	icmp_echo_reply_packets := buff[icmp.TotalBytes:]
+
+	internals.ParseEchoReply(icmp_echo_reply_packets, &icmp)
+
+	internals.PrintICMP(icmp)
 }
